@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="FactExtract" default="package" basedir=".">
+	  <!-- ====================================================================== -->
+	  <!-- Build environment properties                                           -->
+	  <!-- ====================================================================== -->
+	  <property name="template.build.version" value="3.1.3" />
+	  <property name="template.build.finalName" value="${ant.project.name}-${template.build.version}"/>
+	  <property name="template.build.dir" value="distrib"/>
+	  <property name="template.build.outputDir" value="${template.build.dir}/classes"/>
+	  <property name="template.build.srcDir.0" value="src"/>
+	  <property name="template.build.pkgDir" value="${template.build.dir}/distrib-zip/${template.build.finalName}"/>
+
+	
+	<!-- ====================================================================== -->
+	  <!-- Cleaning up target                                                     -->
+	  <!-- ====================================================================== -->
+
+	  <target name="clean" description="Clean the output directory">
+	    <delete dir="${template.build.dir}"/>
+	  </target>
+
+	
+	<!-- ====================================================================== -->
+	  <!-- Defining classpaths                                                    -->
+	  <!-- ====================================================================== -->
+
+	<path id="build.classpath">
+		<filelist 
+		    id="local-jars" 
+		    dir="/opt/local/lib">
+		    <file name="ICAUIMAUtils-3.0.0.jar"/>
+			<file name="db2jcc.jar"/>
+			<file name="db2jcc_license_cu.jar"/>
+		</filelist>
+		<filelist 
+		    id="uima-jars" 
+		    dir="/opt/apache-uima-2.8.1/lib">
+		    <file name="uima-core.jar"/>
+		</filelist>
+	  </path>
+	
+	<!-- ====================================================================== -->
+	  <!-- Compilation target                                                     -->
+	  <!-- ====================================================================== -->
+
+	  <target name="compile" description="Compile the code">
+	    <mkdir dir="${template.build.outputDir}"/>
+	    <javac destdir="${template.build.outputDir}"
+	           nowarn="true"
+	           debug="true"
+	           optimize="false"
+	           deprecation="true"
+	           target="1.8"
+	           verbose="false"
+	           source="1.8">
+	      <src>
+	        <pathelement location="${template.build.srcDir.0}"/>
+	      </src>
+	      <classpath refid="build.classpath"/>
+	    </javac>
+	  </target>
+	
+	<!-- ====================================================================== -->
+	  <!-- Jar target                                                             -->
+	  <!-- ====================================================================== -->
+
+	  <target name="jar" depends="compile" description="Build a deployable jar">
+	    <jar destfile="${template.build.dir}/${ant.project.name}-${template.build.version}.jar"
+	         basedir="${template.build.dir}/classes">
+	      <manifest>
+	        <attribute name="Specification-Title" value="${ant.project.name}"/>
+	        <attribute name="Specification-Version" value="${template.build.version}"/>
+	        <attribute name="Specification-Vendor" value="martin.saunders@uk.ibm.com"/>
+	        <attribute name="Implementation-Title" value="${ant.project.name}"/>
+	        <attribute name="Implementation-Version" value="${template.build.version}"/>
+	        <attribute name="Implementation-Vendor" value="martin.saunders@uk.ibm.com"/>
+	        <attribute name="Implementation-Vendor-Id"
+	                   value="com.mnsuk.uima"/>
+	        <attribute name="Built-By" value="${user.name}"/>
+	      </manifest>
+	    </jar>
+	  </target>
+	<!-- ====================================================================== -->
+	  <!-- Package target                                                         -->
+	  <!-- ====================================================================== -->
+
+	  <target name="package" depends="compile,jar"
+	          description="Package the application">
+	  	<mkdir dir="${template.build.pkgDir}" />
+	    <mkdir dir="${template.build.pkgDir}/lib" />
+	    <mkdir dir="${template.build.pkgDir}/desc"/>
+	  	<mkdir dir="${template.build.pkgDir}/doc"/>
+
+	    <copy todir="${template.build.pkgDir}/lib">     
+	    	<filelist 
+	    			    id="local-jars" 
+	    			    dir="/opt/local/lib">
+	    			    <file name="ICAUIMAUtils-3.0.0.jar"/>
+	    				<file name="db2jcc.jar"/>
+	    				<file name="db2jcc_license_cu.jar"/>
+	    			</filelist>
+	    </copy>
+	    <copy todir="${template.build.pkgDir}/lib"
+	          file="${template.build.dir}/${template.build.finalName}.jar"/>
+	  	<copy todir="${template.build.pkgDir}/desc"
+	  		file="desc/${ant.project.name}-ae.xml"/>
+	    <replace file="${template.build.pkgDir}/desc/${ant.project.name}-ae.xml" token="!PROJECT_VERSION" value="${template.build.version}"/>
+	  	<copy tofile="${template.build.pkgDir}/doc/${template.build.finalName}.pdf"
+	  		file="doc/${ant.project.name}.pdf"/>
+	    <zip destfile="${template.build.dir}/${template.build.finalName}-distrib.zip"
+	         basedir="${template.build.dir}/distrib-zip"/>
+	  </target>
+
+</project>

@@ -1,0 +1,24 @@
+Version 3.1.3
+    Renaming of project, packages and classes from DBMSConsumer to FactExtract
+    Tested on Watson Explorer 11.0.1
+Version 3.1.1
+    Improved defaults for CAS view and index field parameters
+    UIMA 2.8.1
+    changed to ant builder
+Version 3.1 $Revision: 185 $
+	Allows WCA metafield to be specified as the source of the database primary key for the documents.
+	allows selection of which CAS view to look for annotations in (useful when not running in WCA).
+Version 3.0 Revision: 183 
+	Added support for MSSQLServer
+Version 2.0.1 Revision: 176
+	Bug fix. SQL statement handles not properly closed leading to  limit on number of documents that could be processed
+Version 2.0 Revision: 158 
+	Port to java 7, UIMA 2.5 for WCA 3.5
+	Minor documentation changes.
+Version 1.1 Revision: 147 
+	Documentation updates, renaming.
+Version 1.0.1 Revision: 137
+    Localised exception messages with resource bundles.
+    Changed messages in various logged exception messages that were all the same.
+Version 1.0 Revision: 122 
+    Initial

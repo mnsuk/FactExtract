@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
+  <frameworkImplementation>org.apache.uima.java</frameworkImplementation>
+  <primitive>true</primitive>  <annotatorImplementationName>com.mnsuk.uima.FactExtract</annotatorImplementationName>
+  <analysisEngineMetaData>
+    <name>FactExtract-ae</name>
+    <description/>
+    <version>!PROJECT_VERSION</version>
+    <vendor>martin.saunders@uk.ibm.com</vendor>
+    <configurationParameters searchStrategy="none">
+      <configurationGroup names="General">
+        <configurationParameter>
+          <name>Project</name>
+          <description>Project name (maximum 10 characters).</description>
+          <type>String</type>
+          <multiValued>false</multiValued>
+          <mandatory>true</mandatory>
+        </configurationParameter>
+        <configurationParameter>
+          <name>PrependTableNames</name>
+          <description>If true table names created to hold annotation feature structures will be prepended with the $Project_.</description>
+          <type>Boolean</type>
+          <multiValued>false</multiValued>
+          <mandatory>true</mandatory>
+        </configurationParameter>
+        <configurationParameter>
+          <name>DropTables</name>
+          <description>If true existing tables holding annotation feature structures will be dropped and recreated.</description>
+          <type>Boolean</type>
+          <multiValued>false</multiValued>
+          <mandatory>true</mandatory>
+        </configurationParameter>
+      <configurationParameter>
+          <name>SaveDocText</name>
+          <type>Boolean</type>
+          <multiValued>false</multiValued>
+          <mandatory>true</mandatory>
+        </configurationParameter>
+      <configurationParameter>
+          <name>KeyField</name>
+          <description>If empty then the annotator will generate primary keys for the documents. If a value is specified then the value of the metadata field of this name will be used as the key.</description>
+          <type>String</type>
+          <multiValued>false</multiValued>
+          <mandatory>false</mandatory>
+        </configurationParameter>
+        <configurationParameter>
+          <name>CASView</name>
+          <description>Specifies the CAS view where to look for the specified annotations. If left blank the default view is used.</description>
+          <type>String</type>
+          <multiValued>false</multiValued>
+          <mandatory>false</mandatory>
+        </configurationParameter>
+      </configurationGroup>
+      <configurationGroup names="JDBC">
+        <configurationParameter>
+          <name>DBHost</name>
+          <description>Hostname or IP address of database server.</description>
+          <type>String</type>
+          <multiValued>false</multiValued>
+          <mandatory>true</mandatory>
+        </configurationParameter>
+        <configurationParameter>
+          <name>DBPort</name>
+          <description>Port number database serve ris listening on.</description>
+          <type>String</type>
+          <multiValued>false</multiValued>
+          <mandatory>true</mandatory>
+        </configurationParameter>
+        <configurationParameter>
+          <name>DBName</name>
+          <description>Database name.</description>
+          <type>String</type>
+          <multiValued>false</multiValued>
+          <mandatory>true</mandatory>
+        </configurationParameter>
+        <configurationParameter>
+          <name>DBSchema</name>
+          <description>Database schema. If this does not exist it will be created the first time the AE is run.</description>
+          <type>String</type>
+          <multiValued>false</multiValued>
+          <mandatory>true</mandatory>
+        </configurationParameter>
+        <configurationParameter>
+          <name>DBUser</name>
+          <description>User name to authenticate against the database.</description>
+          <type>String</type>
+          <multiValued>false</multiValued>
+          <mandatory>false</mandatory>
+        </configurationParameter>
+        <configurationParameter>
+          <name>DBPassword</name>
+          <description>Password for DBUser.</description>
+          <type>String</type>
+          <multiValued>false</multiValued>
+          <mandatory>false</mandatory>
+        </configurationParameter>
+      <configurationParameter>
+          <name>DB</name>
+          <description>Database type. Valid entries are DB2 or MSSQL</description>
+          <type>String</type>
+          <multiValued>false</multiValued>
+          <mandatory>true</mandatory>
+        </configurationParameter>
+      </configurationGroup>
+    </configurationParameters>
+    <configurationParameterSettings>
+      <settingsForGroup name="General">
+        <nameValuePair>
+          <name>Project</name>
+          <value>
+            <string>DEMO</string>
+          </value>
+        </nameValuePair>
+        <nameValuePair>
+          <name>PrependTableNames</name>
+          <value>
+            <boolean>true</boolean>
+          </value>
+        </nameValuePair>
+        <nameValuePair>
+          <name>DropTables</name>
+          <value>
+            <boolean>true</boolean>
+          </value>
+        </nameValuePair>
+        <nameValuePair>
+          <name>SaveDocText</name>
+          <value>
+            <boolean>false</boolean>
+          </value>
+        </nameValuePair>
+        <nameValuePair>
+          <name>KeyField</name>
+          <value>
+            <string>default</string>
+          </value>
+        </nameValuePair>
+        <nameValuePair>
+          <name>CASView</name>
+          <value>
+            <string>default</string>
+          </value>
+        </nameValuePair>
+      </settingsForGroup>
+      <settingsForGroup name="JDBC">
+        <nameValuePair>
+          <name>DBHost</name>
+          <value>
+            <string>192.168.172.133</string>
+          </value>
+        </nameValuePair>
+        <nameValuePair>
+          <name>DBPort</name>
+          <value>
+            <string>50000</string>
+          </value>
+        </nameValuePair>
+        <nameValuePair>
+          <name>DBName</name>
+          <value>
+            <string>Sandpit</string>
+          </value>
+        </nameValuePair>
+        <nameValuePair>
+          <name>DBSchema</name>
+          <value>
+            <string>TEST</string>
+          </value>
+        </nameValuePair>
+        <nameValuePair>
+          <name>DBUser</name>
+          <value>
+            <string>db2inst1</string>
+          </value>
+        </nameValuePair>
+        <nameValuePair>
+          <name>DBPassword</name>
+          <value>
+            <string>password</string>
+          </value>
+        </nameValuePair>
+        <nameValuePair>
+          <name>DB</name>
+          <value>
+            <string>DB2</string>
+          </value>
+        </nameValuePair>
+      </settingsForGroup>
+    </configurationParameterSettings>
+    <typeSystemDescription/>
+    <typePriorities/>
+    <fsIndexCollection/>
+    <capabilities>
+      <capability>
+        <inputs/>
+        <outputs/>
+        <languagesSupported/>
+      </capability>
+    </capabilities>
+  <operationalProperties>
+      <modifiesCas>true</modifiesCas>
+      <multipleDeploymentAllowed>true</multipleDeploymentAllowed>
+      <outputsNewCASes>false</outputsNewCASes>
+    </operationalProperties>
+  </analysisEngineMetaData>
+  <resourceManagerConfiguration/>
+</analysisEngineDescription>
