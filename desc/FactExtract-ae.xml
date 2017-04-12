@@ -43,14 +43,7 @@
           <multiValued>false</multiValued>
           <mandatory>false</mandatory>
         </configurationParameter>
-        <configurationParameter>
-          <name>CASView</name>
-          <description>Specifies the CAS view where to look for the specified annotations. If left blank the default view is used.</description>
-          <type>String</type>
-          <multiValued>false</multiValued>
-          <mandatory>false</mandatory>
-        </configurationParameter>
-      </configurationGroup>
+        </configurationGroup>
       <configurationGroup names="JDBC">
         <configurationParameter>
           <name>DBHost</name>
@@ -131,12 +124,6 @@
         </nameValuePair>
         <nameValuePair>
           <name>KeyField</name>
-          <value>
-            <string>default</string>
-          </value>
-        </nameValuePair>
-        <nameValuePair>
-          <name>CASView</name>
           <value>
             <string>default</string>
           </value>

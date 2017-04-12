@@ -21,7 +21,6 @@ public class Tester {
 		FactExtract.setpDrop(true);
 		FactExtract.setpPrependTableNames(true);
 		FactExtract.setpSaveDocText(true);
-		FactExtract.setpCASView("default");  // usually _InitialView or lrw-view
 		FactExtract.setpKeyField("default");  // usually _InitialView or lrw-view
 
 		anno.TestAnnotator( fileType1, CASFile1);

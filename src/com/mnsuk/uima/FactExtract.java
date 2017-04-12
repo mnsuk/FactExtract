@@ -58,13 +58,12 @@ public class FactExtract extends JCasAnnotator_ImplBase {
 	private static final String PARAM_GENERAL_DROP = "DropTables";
 	private static final String PARAM_GENERAL_SAVE_TEXT = "SaveDocText";
 	private static final String PARAM_GENERAL_KEYFIELD = "KeyField";
-	private static final String PARAM_GENERAL_CAS_VIEW = "CASView";
 	
 	private static final int PROJECT_MAX_NAME_LEN = 10;
 	
 	// Global parameter values
 	private static String pDBHost, pDBPort, pDBName, pDBSchema, pDBUser, pDBPassword, pDB;   
-	private static String pProject, pKeyField, pCASView;
+	private static String pProject, pKeyField;
 	private static Boolean pDrop, pPrependTableNames, pSaveDocText;
 	
 	// Global Variables
@@ -98,8 +97,6 @@ public class FactExtract extends JCasAnnotator_ImplBase {
 		pPrependTableNames = CASUtils.getConfigurationBooleanValue(aContext, PARAM_GROUP_GENERAL, PARAM_GENERAL_PREPEND);
 		pSaveDocText = CASUtils.getConfigurationBooleanValue(aContext, PARAM_GROUP_GENERAL, PARAM_GENERAL_SAVE_TEXT);
 		pKeyField = CASUtils.getConfigurationStringValue(aContext, PARAM_GROUP_GENERAL, PARAM_GENERAL_KEYFIELD);
-		tmp = CASUtils.getConfigurationStringValue(aContext, PARAM_GROUP_GENERAL, PARAM_GENERAL_CAS_VIEW);		
-		pCASView = (tmp!=null && !tmp.isEmpty()) ? tmp : "default";
 		
 		session = new Session(pDB, pDBHost, pDBPort, pDBName, pDBSchema, pDBUser, pDBPassword);
 		sqlx = new SQLExecuter(session, pProject, pDrop, pPrependTableNames);
@@ -136,16 +133,7 @@ public class FactExtract extends JCasAnnotator_ImplBase {
 		
 	
 		//ResourceBundle.getBundle(MESSAGE_DIGEST, java.util.Locale.getDefault());
-		try {
-			if (pCASView.equals(USE_DEFAULT_CAS_VIEW) || pCASView.equalsIgnoreCase("default"))
-				this.jcas=aJCas;
-			else
-				this.jcas=aJCas.getView(pCASView);
-		} catch (CASException e) {
-			logger.log(Level.SEVERE, e.toString());
-			throw new AnalysisEngineProcessException (
-					AnalysisEngineProcessException.ANNOTATOR_EXCEPTION, new Object[] {e});
-		}
+		this.jcas=aJCas;
 		if (pSaveDocText)
 			this.text=jcas.getDocumentText();
 		DocumentDetails.extractDocumentDetails(jcas);
@@ -214,7 +202,6 @@ public class FactExtract extends JCasAnnotator_ImplBase {
 			// in place of init
 			session = new Session(pDB, pDBHost, pDBPort, pDBName, pDBSchema, pDBUser, pDBPassword);
 			sqlx = new SQLExecuter(session, pProject, pDrop, pPrependTableNames);
-			pCASView = (pCASView!=null && !pCASView.isEmpty()) ? pCASView : USE_DEFAULT_CAS_VIEW;
 			// and process
 			process(jcas);
 			collectionProcessComplete();
@@ -279,14 +266,6 @@ public class FactExtract extends JCasAnnotator_ImplBase {
 
 	public static void setpDB(String pDB) {
 		FactExtract.pDB = pDB;
-	}
-	
-	public static String getpCASView() {
-		return pCASView;
-	}
-
-	public static void setpCASView(String pCASView) {
-		FactExtract.pCASView = pCASView;
 	}
 	
 	public static String getpKeyField() {
