@@ -229,9 +229,9 @@
     <en:Organisation xmi:id="1446" sofa="1" begin="189" end="204" name="Hewlett Packard" ruleId="A11C894749EECE23154A2414C6A43DE8"/>
     <en:Organisation xmi:id="1458" sofa="1" begin="222" end="224" name="Hewlett Packard" ruleId="A11C894749EECE23154A2414C6A43DE8"/>
     <en:Organisation xmi:id="1470" sofa="1" begin="253" end="259" name="Oracle" ruleId="A11C894749EECE23154A2414C6A43DE8"/>
-    <en:Employment xmi:id="1476" sofa="1" begin="2" end="75" employee="Martin Saunders" employer="IBM" ruleId="9ED0EAA1C8ADD612EE2EC5C335DD34BB"/>
-    <en:Employment xmi:id="1483" sofa="1" begin="111" end="162" employee="Susan Read" employer="IBM" ruleId="9ED0EAA1C8ADD612EE2EC5C335DD34BB"/>
-    <en:Employment xmi:id="1490" sofa="1" begin="207" end="224" employee="Tony" employer="Hewlett Packard" ruleId="9ED0EAA1C8ADD612EE2EC5C335DD34BB"/>
+    <en:Employment xmi:id="1476" sofa="1" begin="2" end="75" employee="Martin Saunders" employer="IBM" persist="true" ruleId="9ED0EAA1C8ADD612EE2EC5C335DD34BB"/>
+    <en:Employment xmi:id="1483" sofa="1" begin="111" end="162" employee="Susan Read" employer="IBM" persist="false" ruleId="9ED0EAA1C8ADD612EE2EC5C335DD34BB"/>
+    <en:Employment xmi:id="1490" sofa="1" begin="207" end="224" employee="Tony" employer="Hewlett Packard" persist="true" ruleId="9ED0EAA1C8ADD612EE2EC5C335DD34BB"/>
     <en:Employment xmi:id="1497" sofa="1" begin="237" end="259" employee="Linda" employer="Oracle" ruleId="9ED0EAA1C8ADD612EE2EC5C335DD34BB"/>
     <cas:Sofa xmi:id="1" sofaNum="1" sofaID="_InitialView" mimeType="text" sofaString="&#13;&#10;Martin Saunders who lives in Berksire and owns a stupid dog works for IBM.&#13;&#10;Harry does not work for Oracle.&#13;&#10;Susan Read, who lives in London, is employed by IBM.&#13;&#10;Larry isn't employed by Hewlett Packard.&#13;&#10;Tony works for HP, his friend Linda works for Oracle.&#13;&#10;"/>
     <tt:Lemma xmi:id="23" key="Martin" partOfSpeech="1" frost_ExtendedPOS="0"/>

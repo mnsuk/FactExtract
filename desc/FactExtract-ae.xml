@@ -10,6 +10,13 @@
     <configurationParameters searchStrategy="none">
       <configurationGroup names="General">
         <configurationParameter>
+          <name>Lazymode</name>
+          <description>If true the extractions are automatically configured by naming conventions, if false (the default) extraction configurations must be entered into the database.</description>
+          <type>Boolean</type>
+          <multiValued>false</multiValued>
+          <mandatory>true</mandatory>
+        </configurationParameter>
+        <configurationParameter>
           <name>Project</name>
           <description>Project name (maximum 10 characters).</description>
           <type>String</type>
@@ -43,7 +50,7 @@
           <multiValued>false</multiValued>
           <mandatory>false</mandatory>
         </configurationParameter>
-        </configurationGroup>
+      </configurationGroup>
       <configurationGroup names="JDBC">
         <configurationParameter>
           <name>DBHost</name>
@@ -126,6 +133,12 @@
           <name>KeyField</name>
           <value>
             <string>default</string>
+          </value>
+        </nameValuePair>
+        <nameValuePair>
+          <name>Lazymode</name>
+          <value>
+            <boolean>false</boolean>
           </value>
         </nameValuePair>
       </settingsForGroup>

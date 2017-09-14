@@ -3,7 +3,7 @@
 	  <!-- ====================================================================== -->
 	  <!-- Build environment properties                                           -->
 	  <!-- ====================================================================== -->
-	  <property name="template.build.version" value="3.1.4" />
+	  <property name="template.build.version" value="3.2.0" />
 	  <property name="template.build.finalName" value="${ant.project.name}-${template.build.version}"/>
 	  <property name="template.build.dir" value="distrib"/>
 	  <property name="template.build.outputDir" value="${template.build.dir}/classes"/>

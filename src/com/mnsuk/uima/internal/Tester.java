@@ -10,7 +10,7 @@ public class Tester {
 		
 		
 		FactExtract anno = new FactExtract();
-		FactExtract.setpDBHost("192.168.202.152");
+		FactExtract.setpDBHost("192.168.240.131");
 		FactExtract.setpDBPort("50000");
 		FactExtract.setpDBName("EXTRACTS");
 		FactExtract.setpDBSchema("DEMO");
@@ -20,7 +20,8 @@ public class Tester {
 		FactExtract.setpProject("EMP");
 		FactExtract.setpDrop(true);
 		FactExtract.setpPrependTableNames(true);
-		FactExtract.setpSaveDocText(true);
+		FactExtract.setpSaveDocText(false);
+		FactExtract.setpLazymode(true);
 		FactExtract.setpKeyField("default");  // usually _InitialView or lrw-view
 
 		anno.TestAnnotator( fileType1, CASFile1);

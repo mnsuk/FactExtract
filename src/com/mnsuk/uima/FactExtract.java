@@ -58,13 +58,14 @@ public class FactExtract extends JCasAnnotator_ImplBase {
 	private static final String PARAM_GENERAL_DROP = "DropTables";
 	private static final String PARAM_GENERAL_SAVE_TEXT = "SaveDocText";
 	private static final String PARAM_GENERAL_KEYFIELD = "KeyField";
+	private static final String PARAM_GENERAL_LAZYMODE = "Lazymode";
 	
 	private static final int PROJECT_MAX_NAME_LEN = 10;
 	
 	// Global parameter values
 	private static String pDBHost, pDBPort, pDBName, pDBSchema, pDBUser, pDBPassword, pDB;   
 	private static String pProject, pKeyField;
-	private static Boolean pDrop, pPrependTableNames, pSaveDocText;
+	private static Boolean pDrop, pPrependTableNames, pSaveDocText, pLazymode;
 	
 	// Global Variables
 	private Logger logger = null;
@@ -97,9 +98,10 @@ public class FactExtract extends JCasAnnotator_ImplBase {
 		pPrependTableNames = CASUtils.getConfigurationBooleanValue(aContext, PARAM_GROUP_GENERAL, PARAM_GENERAL_PREPEND);
 		pSaveDocText = CASUtils.getConfigurationBooleanValue(aContext, PARAM_GROUP_GENERAL, PARAM_GENERAL_SAVE_TEXT);
 		pKeyField = CASUtils.getConfigurationStringValue(aContext, PARAM_GROUP_GENERAL, PARAM_GENERAL_KEYFIELD);
+		pLazymode = CASUtils.getConfigurationBooleanValue(aContext, PARAM_GROUP_GENERAL, PARAM_GENERAL_LAZYMODE);
 		
 		session = new Session(pDB, pDBHost, pDBPort, pDBName, pDBSchema, pDBUser, pDBPassword);
-		sqlx = new SQLExecuter(session, pProject, pDrop, pPrependTableNames);
+		sqlx = new SQLExecuter(session, pProject, pDrop, pPrependTableNames, pLazymode);
 	}
 	
 	public void collectionProcessComplete() throws AnalysisEngineProcessException {
@@ -137,7 +139,13 @@ public class FactExtract extends JCasAnnotator_ImplBase {
 		if (pSaveDocText)
 			this.text=jcas.getDocumentText();
 		DocumentDetails.extractDocumentDetails(jcas);
-		HashMap<String, ArrayList<String>> annoFtMap = sqlx.getAnnotationFeatures();
+		
+		HashMap<String, ArrayList<String>> annoFtMap = null;
+		if (pLazymode) 
+			annoFtMap = sqlx.initPersistTypeList(jcas);
+		else
+			annoFtMap = sqlx.getAnnotationFeatures();
+		// or use lazy mode to build annoFtMap
 			
 		String uniq = extractRecordID(pKeyField, jcas); // ok if returns null
 		String doc_id=null;
@@ -152,7 +160,7 @@ public class FactExtract extends JCasAnnotator_ImplBase {
 
 			ArrayList<PrimitiveAFS> pafs = CASUtils.extractPrimitiveAFSList(jcas, entry.getKey(), entry.getValue());
 			if (!pafs.isEmpty())
-				sqlx.persistPrimitveAFSList(doc_id, pafs);
+				sqlx.persistPrimitveAFSList(doc_id, pafs, pLazymode);
 		}
 
 		logger.log(Level.INFO, "FactExtract: processed document: " + DocumentDetails.title);
@@ -201,7 +209,7 @@ public class FactExtract extends JCasAnnotator_ImplBase {
 			jcas = cas.getJCas();
 			// in place of init
 			session = new Session(pDB, pDBHost, pDBPort, pDBName, pDBSchema, pDBUser, pDBPassword);
-			sqlx = new SQLExecuter(session, pProject, pDrop, pPrependTableNames);
+			sqlx = new SQLExecuter(session, pProject, pDrop, pPrependTableNames, pLazymode);
 			// and process
 			process(jcas);
 			collectionProcessComplete();
@@ -294,6 +302,10 @@ public class FactExtract extends JCasAnnotator_ImplBase {
 	
 	public static void setpSaveDocText(Boolean pSaveDocText) {
 		FactExtract.pSaveDocText = pSaveDocText;
+	}
+	
+	public static void setpLazymode(Boolean pLazymode) {
+		FactExtract.pLazymode = pLazymode;
 	}
 	
 }

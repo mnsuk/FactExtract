@@ -11,11 +11,16 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.uima.UIMAFramework;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
+import org.apache.uima.cas.Feature;
+import org.apache.uima.cas.Type;
+import org.apache.uima.cas.TypeSystem;
+import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.Level;
 import org.apache.uima.util.Logger;
@@ -33,6 +38,7 @@ import com.mnsuk.uima.FactExtract;
  */
 
 public class SQLExecuter {
+	static private final String LAZYMODE_TRIGGER_FEATURE = "persist"; 
 	static private final String CONFIG_TABLE = "CONFIGSCHEMA";
 	// DB2 tablename max length is 128 characters, created table is project_tablename so max is 117
 	static private String CREATE_CONFIG_DB2 =
@@ -142,7 +148,7 @@ public class SQLExecuter {
 	// annoFeatures associates and annotation with its features to be persisted <annotation, <features>>
 	private HashMap<String, ArrayList<String>> annoFeatures = new HashMap<String, ArrayList<String>>();
 
-	public SQLExecuter(Session session, String project, Boolean drop, Boolean prepend) throws ResourceInitializationException {
+	public SQLExecuter(Session session, String project, Boolean drop, Boolean prepend, Boolean lazymode) throws ResourceInitializationException {
 		this.conn = session.getConnection();
 		this.schemaName = session.getDbSchema();
 		this.configTable = schemaName + "." + CONFIG_TABLE;
@@ -176,7 +182,7 @@ public class SQLExecuter {
 		this.prepend = prepend;
 		checkConfig();
 		readSchema();
-		createSchema();
+		createSchema(lazymode);
 	}
 
 	/**
@@ -386,7 +392,7 @@ public class SQLExecuter {
 	 * <p>
 	 * @throws AnalysisEngineProcessException
 	 */
-	private void createSchema() throws ResourceInitializationException {
+	private void createSchema(Boolean lazymode) throws ResourceInitializationException {
 		PreparedStatement statement = null;
 
 		try {		
@@ -442,10 +448,13 @@ public class SQLExecuter {
 				HashMap<String,String> columns = entry.getValue();
 				Iterator<String> columnItr = columns.values().iterator();
 				while (columnItr.hasNext()) {
-					sb.append(columnItr.next());
-					sb.append(" ");
-					sb.append(CREATE_ANNO_TABLES_DEFAULT_DATATYPE);
-					sb.append(", ");
+					String columnName = columnItr.next();
+					if (!(lazymode && columnName.equalsIgnoreCase(LAZYMODE_TRIGGER_FEATURE))) { // don't create lazymode feature trigger column
+						sb.append(columnName);
+						sb.append(" ");
+						sb.append(CREATE_ANNO_TABLES_DEFAULT_DATATYPE);
+						sb.append(", ");
+					}
 				}
 				sb.append(CREATE_ANNO_TABLES_END_COLUMNS);
 				sb.append(", PRIMARY KEY (ROW_ID))");
@@ -469,7 +478,7 @@ public class SQLExecuter {
 
 	}
 
-	public void persistPrimitveAFSList(String doc_id, ArrayList<PrimitiveAFS> pafs) throws AnalysisEngineProcessException {
+	public void persistPrimitveAFSList(String doc_id, ArrayList<PrimitiveAFS> pafs, Boolean lazymode) throws AnalysisEngineProcessException {
 		String annoName = pafs.get(0).getTypeStr();
 		logger.log(Level.INFO, "Persisting annotation: " + annoName + " DOC_ID: " + doc_id);
 
@@ -480,15 +489,26 @@ public class SQLExecuter {
 			fqTgtTable = schemaName + "." + project + "_" + tgtTable;
 		else
 			fqTgtTable = schemaName + "." + tgtTable;
+		if (lazymode) { // tables may not have been created as schema created in initilaisation when type system not available
+			try {
+				createSchema(lazymode); // does nothing if tables already exist
+			} catch (ResourceInitializationException e) {
+				logger.log(Level.SEVERE, "Error creating target schema in lazymode."); 
+		        throw new AnalysisEngineProcessException(FactExtract.MESSAGE_DIGEST, "anno_persist_error",
+		                new Object[] { "Creating target schema in lazymode - " + e.toString()}, e);
+			}  
+		}
 		deleteEntries(fqTgtTable, doc_id);
 		HashMap<String, String> tgtFtColumnMap = tableColumns.get(tgtTable);
 
 		StringBuffer sb = new StringBuffer("INSERT INTO " + fqTgtTable + " (" + INS_START_COLUMNS);
 		for (String ft : features) {
-			String col = tgtFtColumnMap.get(ft);
-			if (col!=null && !col.isEmpty()) {
-				sb.append(", ");
-				sb.append(col);
+			if (!(lazymode && ft.equals(LAZYMODE_TRIGGER_FEATURE))) {  // don't persist lazymode trigger feature
+				String col = tgtFtColumnMap.get(ft);
+				if (col!=null && !col.isEmpty()) {
+					sb.append(", ");
+					sb.append(col);
+				}
 			}
 		}
 		sb.append(", ");
@@ -496,7 +516,8 @@ public class SQLExecuter {
 		sb.append(") VALUES(");
 		for (int i=0; i < INS_START_COLUMN_COUNT; i++)
 			sb.append("?, ");
-		for (int i=0; i < features.size(); i++) {	
+		int featureCount = lazymode ? features.size() - 1 : features.size();
+		for (int i=0; i < featureCount; i++) {	
 			sb.append("?, ");
 		}
 		for (int i=0; i < INS_END_COLUMN_COUNT - 1; i++)
@@ -510,7 +531,11 @@ public class SQLExecuter {
 
 			for (PrimitiveAFS paf : pafs) {
 				HashMap<String, String> ftValues = paf.getFeatures();
-				int i = 0;
+				if (lazymode && (ftValues.get(LAZYMODE_TRIGGER_FEATURE) == null ||  
+						(ftValues.get(LAZYMODE_TRIGGER_FEATURE) != null && ftValues.get(LAZYMODE_TRIGGER_FEATURE).equalsIgnoreCase("FALSE")))) {
+					continue; // skip this annotation
+				}					
+				int i = 0, j = 0; // need two counters as we skip one feature in lazymode
 				statement.setString(INS_DOC_ID, doc_id);
 				String ct = paf.getCoveredText();
 				if (ct.length() > ANNO_TABLES_COVEREDTEXT_LENGTH) 
@@ -519,13 +544,18 @@ public class SQLExecuter {
 				statement.setInt(INS_BEGIN_OFFSET, paf.getBegin());
 				statement.setInt(INS_END_OFFSET, paf.getEnd());
 				while (i < features.size()) {
-					String value = ftValues.get(features.get(i));
-					if (value.length() > ANNO_TABLES_COLUMN_LENGTH)
-						value = value.substring(0, ANNO_TABLES_COLUMN_LENGTH - "(truncated)".length()) + "(truncated)";
-					statement.setString(i + INS_START_COLUMN_COUNT + 1,value);  // Columns before features + offset numbers from 1 not zero.
+					if (!(lazymode && features.get(i).equals(LAZYMODE_TRIGGER_FEATURE))) { // don't persist the lazymode trigger feature. 
+						String value = ftValues.get(features.get(i));
+						if (value==null)
+							value="";
+						if (value.length() > ANNO_TABLES_COLUMN_LENGTH)
+							value = value.substring(0, ANNO_TABLES_COLUMN_LENGTH - "(truncated)".length()) + "(truncated)";
+						statement.setString(j + INS_START_COLUMN_COUNT + 1,value);  // Columns before features + offset numbers from 1 not zero.
+						j++;
+					}
 					i++;
 				}
-				statement.setTimestamp(i + INS_START_COLUMN_COUNT + 1, new Timestamp((new Date()).getTime()));
+				statement.setTimestamp(j + INS_START_COLUMN_COUNT + 1, new Timestamp((new Date()).getTime()));
 				statement.executeUpdate();
 			}
 		} catch (SQLException e) {
@@ -610,6 +640,49 @@ public class SQLExecuter {
 			fts.remove(removeIdx);
 	}
 
+	/**
+	 * Iterates through all user types in the typesystem 
+	 * to identify those that have been marked for persistence.
+	 * <p>
+	 * Retunrs a list of those types.
+	 *
+	 * @param  jc JCas
+	 */
+	public HashMap<String, ArrayList<String>> initPersistTypeList(JCas jc) {
+		HashMap<String, ArrayList<String>> aF = new HashMap<String, ArrayList<String>>();
+		List<Type> pTypes = new ArrayList<Type>();
+		TypeSystem typeSystem = jc.getTypeSystem();
+		Iterator typeIterator = typeSystem.getTypeIterator();
+		Type t;
+		while (typeIterator.hasNext()) {
+			t = (Type) typeIterator.next();
+			if (!t.getName().startsWith("uima.")) {
+				List<Feature> fts = t.getFeatures();
+				if (t.getFeatureByBaseName(LAZYMODE_TRIGGER_FEATURE)!=null) {
+					if (!t.getName().contains(".en.")) {
+						String typeName = t.getShortName();
+						// assume target table name is same as annotation name
+						annoTables.put(t.getName(), typeName.toUpperCase());
+						ArrayList<String> featureNames = new ArrayList<String>();	
+						HashMap<String,String> featureColumns = new HashMap<String,String>();
+						for (Feature ft : fts){
+							String ftName = ft.getShortName();
+							if (!ftName.equals("sofa") && !ftName.equals("ruleId") && !ftName.equals("begin") && !ftName.equals("end")) {
+								featureNames.add(ftName);
+								// assume table columnnames are the same as feature names
+								featureColumns.put(ftName, ftName.toUpperCase());
+							}
+							tableColumns.put(typeName.toUpperCase(),featureColumns);
+						}
+						aF.put(t.getName(), featureNames);
+					}
+				}
+			}
+		}
+		annoFeatures = aF;
+		return aF;
+	}
+	
 	public HashMap<String, ArrayList<String>> getAnnotationFeatures() {
 		return annoFeatures;
 	}

@@ -34,6 +34,11 @@
                     <rangeTypeName>uima.cas.String</rangeTypeName>
                 </featureDescription>
                 <featureDescription>
+                    <name>persist</name>
+                    <description/>
+                    <rangeTypeName>uima.cas.String</rangeTypeName>
+                </featureDescription>
+                <featureDescription>
                     <name>ruleId</name>
                     <description/>
                     <rangeTypeName>uima.cas.String</rangeTypeName>
