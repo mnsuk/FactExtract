@@ -18,6 +18,7 @@ public class Session {
 	private String db, dbHost, dbPort, dbName, dbSchema, dbUser, dbPassword;
 	static private final String DB2 = "DB2";
 	static private final String MSSQL = "MSSQL";
+	static private final String MYSQL = "MYSQL";
 
 
 	/**
@@ -38,7 +39,10 @@ public class Session {
         this.dbHost = dbHost;
         this.dbPort = dbPort;
         this.dbName = dbName;
-        this.dbSchema = dbSchema;
+        if (DB.equals(MYSQL))
+        	this.dbSchema = dbName;
+        else
+        	this.dbSchema = dbSchema;
         this.dbUser = dbUser; 
         this.dbPassword = dbPassword;   
 		this.conn = connect();		
@@ -62,6 +66,9 @@ public class Session {
 			} else if (db.equals(MSSQL)) {
 				Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver").newInstance();
 				url = "jdbc:sqlserver://" + this.dbHost + ":" + this.dbPort + ";databaseName=" + this.dbName;  			
+			} else if (db.equals(MYSQL)) {
+				Class.forName("com.mysql.jdbc.Driver").newInstance();
+				url = "jdbc:mysql://" + this.dbHost + ":" + this.dbPort + "/" + this.dbName; 
 			} else {
 				throw new ResourceInitializationException (
 						ResourceInitializationException.ANNOTATOR_INITIALIZATION_FAILED + " Invalid database type: " + db, new Object[] {});

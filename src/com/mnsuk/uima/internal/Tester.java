@@ -10,18 +10,18 @@ public class Tester {
 		
 		
 		FactExtract anno = new FactExtract();
-		FactExtract.setpDBHost("192.168.240.131");
-		FactExtract.setpDBPort("50000");
+		FactExtract.setpDBHost("192.168.2.70");
+		FactExtract.setpDBPort("3306");
 		FactExtract.setpDBName("EXTRACTS");
 		FactExtract.setpDBSchema("DEMO");
-		FactExtract.setpDBUser("db2inst1");
-		FactExtract.setpDBPassword("password");
-		FactExtract.setpDB("DB2");
+		FactExtract.setpDBUser("root");
+		FactExtract.setpDBPassword("admin");
+		FactExtract.setpDB("MYSQL");
 		FactExtract.setpProject("EMP");
 		FactExtract.setpDrop(true);
 		FactExtract.setpPrependTableNames(true);
-		FactExtract.setpSaveDocText(false);
-		FactExtract.setpLazymode(true);
+		FactExtract.setpSaveDocText(true);
+		FactExtract.setpLazymode(false);
 		FactExtract.setpKeyField("default");  // usually _InitialView or lrw-view
 
 		anno.TestAnnotator( fileType1, CASFile1);

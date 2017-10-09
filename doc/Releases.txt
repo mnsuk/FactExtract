@@ -1,3 +1,5 @@
+Version 3.2.a
+	Added support for MySQL (very little testing).
 Version 3.2.0
 	Added optional lazy mode the removes the need to use the configuration tables
 Version 3.1.4

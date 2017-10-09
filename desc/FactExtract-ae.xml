@@ -96,7 +96,7 @@
         </configurationParameter>
       <configurationParameter>
           <name>DB</name>
-          <description>Database type. Valid entries are DB2 or MSSQL</description>
+          <description>Database type. Valid entries are DB2, MYSQL or MSSQL</description>
           <type>String</type>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
